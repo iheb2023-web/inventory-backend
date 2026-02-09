@@ -3,6 +3,7 @@ package com.inventory.service;
 import com.inventory.dao.ProductDao;
 import com.inventory.dao.RfidEventDao;
 import com.inventory.dao.StockDao;
+import com.inventory.dao.StoreStockDao;
 import com.inventory.model.device.RfidEvent;
 import com.inventory.model.product.Product;
 import com.inventory.model.product.Stock;
@@ -19,6 +20,7 @@ public class ProductService {
     private final ProductDao productDao;
     private final StockDao stockDao;
     private final RfidEventDao rfidEventDao;
+    private final StoreStockDao storeStockDao;
 
     public Product findByRfidTag(String uid) {
         return productDao.findByRfidTag(uid);
@@ -76,6 +78,37 @@ public class ProductService {
                     return dto;
                 })
                 .toList();
+    }
+
+    public com.inventory.dto.ProductWithStoreStockDto getProductWithStoreStockByBarcode(String barcode) {
+        Product product = productDao.findByBarcode(barcode);
+        if (product == null) {
+            throw new RuntimeException("Produit non trouvé avec le code-barres: " + barcode);
+        }
+
+        // Calculate total quantity in store (all shelves)
+        List<com.inventory.model.product.StoreStock> storeStocks = storeStockDao.findAll();
+        int totalStoreQuantity = storeStocks.stream()
+                .filter(ss -> ss.getProductId().equals(product.getId()))
+                .mapToInt(com.inventory.model.product.StoreStock::getQuantity)
+                .sum();
+
+        // Check if product exists in store_stock
+        if (totalStoreQuantity == 0) {
+            throw new RuntimeException("Produit non disponible en magasin");
+        }
+
+        com.inventory.dto.ProductWithStoreStockDto dto = new com.inventory.dto.ProductWithStoreStockDto();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setBarcode(product.getBarcode());
+        dto.setRfidTag(product.getRfidTag());
+        dto.setDescription(product.getDescription());
+        dto.setUnitWeight(product.getUnitWeight());
+        dto.setCreatedAt(product.getCreatedAt().toString());
+        dto.setStockQuantity(totalStoreQuantity);
+        
+        return dto;
     }
 
 }

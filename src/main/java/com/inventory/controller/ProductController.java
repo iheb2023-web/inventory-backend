@@ -70,4 +70,10 @@ public class ProductController {
         return ApiResponse.ok("PRODUCT_DELETED", null);
     }
 
+    @GetMapping("/barcode/{barcode}")
+    public ApiResponse<com.inventory.dto.ProductWithStoreStockDto> getByBarcode(@PathVariable String barcode) {
+        com.inventory.dto.ProductWithStoreStockDto product = productService.getProductWithStoreStockByBarcode(barcode);
+        return ApiResponse.ok("PRODUCT_FOUND", product);
+    }
+
 }
