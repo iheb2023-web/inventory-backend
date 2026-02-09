@@ -26,7 +26,10 @@
         WHERE product_id = #{productId} AND quantity &gt;= #{qty}
     </update>
     <select id="sumQuantity" resultType="long">
-        SELECT COALESCE(SUM(quantity), 0) FROM stock
+        SELECT COALESCE(
+        (SELECT COUNT(*) FROM rfid_event WHERE location = 'STOCK' AND event_type = 'ENTRY') -
+        (SELECT COUNT(*) FROM rfid_event WHERE location = 'STOCK' AND event_type = 'EXIT'),
+        0)
     </select>
 
     <select id="findAll" resultType="com.inventory.model.product.Stock">
