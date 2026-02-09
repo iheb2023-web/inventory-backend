@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.inventory.dao.ProductDao">
+
+    <select id="findById" resultType="com.inventory.model.product.Product">
+        SELECT * FROM product WHERE id = #{id}
+    </select>
+
+    <select id="findByRfidTag" resultType="com.inventory.model.product.Product">
+        SELECT * FROM product WHERE rfid_tag = #{rfidTag}
+    </select>
+
+    <select id="findByBarcode" resultType="com.inventory.model.product.Product">
+        SELECT * FROM product WHERE barcode = #{barcode}
+    </select>
+
+    <insert id="insert" parameterType="com.inventory.model.product.Product" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product (name, barcode, rfid_tag, description, unit_weight)
+        VALUES (#{name}, #{barcode}, #{rfidTag}, #{description}, #{unitWeight})
+    </insert>
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM product
+    </select>
+    <resultMap id="BaseResultMap" type="com.inventory.model.product.Product">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="barcode" property="barcode"/>
+        <result column="rfid_tag" property="rfidTag"/>
+        <result column="description" property="description"/>
+        <result column="unit_weight" property="unitWeight"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT * FROM product ORDER BY created_at DESC
+    </select>
+
+
+    <update id="update" parameterType="com.inventory.model.product.Product">
+        UPDATE product
+        SET
+        name = #{name},
+        barcode = #{barcode},
+        rfid_tag = #{rfidTag},
+        description = #{description},
+        unit_weight = #{unitWeight}
+        WHERE id = #{id}
+    </update>
+    <delete id="delete" parameterType="long">
+        DELETE FROM product WHERE id = #{id}
+    </delete>
+
+
+
+
+</mapper>

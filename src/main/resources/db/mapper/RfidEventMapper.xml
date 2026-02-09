@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.inventory.dao.RfidEventDao">
+
+    <!-- BaseResultMap définition pour mapper les colonnes de la base aux propriétés du modèle -->
+    <resultMap id="BaseResultMap" type="com.inventory.model.device.RfidEvent">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_id" property="productId" jdbcType="BIGINT"/>
+        <result column="event_type" property="eventType" jdbcType="VARCHAR" />
+        <result column="location" property="location" jdbcType="VARCHAR" />
+        <result column="esp32_id" property="esp32Id" jdbcType="VARCHAR"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+        
+    </resultMap>
+
+    <resultMap id="WithProductResultMap" type="com.inventory.dto.RfidEventWithProductDto">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="product_id" property="productId" jdbcType="BIGINT"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR"/>
+        <result column="event_type" property="eventType" jdbcType="VARCHAR" />
+        <result column="location" property="location" jdbcType="VARCHAR" />
+        <result column="esp32_id" property="esp32Id" jdbcType="VARCHAR"/>
+        <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.inventory.model.device.RfidEvent" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO rfid_event (product_id, event_type, location, esp32_id)
+        VALUES (#{productId}, #{eventType}, #{location}, #{esp32Id})
+    </insert>
+
+    <select id="findRecent" resultMap="BaseResultMap">
+        SELECT * FROM rfid_event
+        ORDER BY created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findRecentWithProduct" resultMap="WithProductResultMap">
+        SELECT 
+            re.id,
+            re.product_id,
+            p.name as product_name,
+            re.event_type,
+            re.location,
+            re.esp32_id,
+            re.created_at
+        FROM rfid_event re
+        JOIN product p ON re.product_id = p.id
+        ORDER BY re.created_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="countByType" resultType="long">
+        SELECT COUNT(*) FROM rfid_event
+        WHERE event_type = #{eventType}
+    </select>
+
+    <select id="findAll" resultMap="BaseResultMap">
+        SELECT * FROM rfid_event ORDER BY created_at DESC
+    </select>
+
+    <delete id="delete" parameterType="long">
+        DELETE FROM rfid_event WHERE id = #{id}
+    </delete>
+
+</mapper>

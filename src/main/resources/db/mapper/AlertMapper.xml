@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.inventory.dao.AlertDao">
+
+    <select id="findOpenAlertByShelf" resultType="com.inventory.model.device.Alert">
+        SELECT * FROM alert
+        WHERE shelf_id = #{shelfId} AND status = 'OPEN'
+        ORDER BY created_at DESC
+        LIMIT 1
+    </select>
+
+    <insert id="insert" parameterType="com.inventory.model.device.Alert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO alert (shelf_id, alert_type, status)
+        VALUES (#{shelfId}, #{alertType}, #{status})
+    </insert>
+
+    <update id="resolveAlert">
+        UPDATE alert
+        SET status = 'RESOLVED'
+        WHERE id = #{alertId}
+    </update>
+
+    <select id="findAll" resultType="com.inventory.model.device.Alert">
+        SELECT * FROM alert
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findOpenAlerts" resultType="com.inventory.model.device.Alert">
+        SELECT * FROM alert
+        WHERE status = 'OPEN'
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findAllWithShelf" resultType="com.inventory.dto.AlertWithShelfDto">
+        SELECT 
+            a.id,
+            a.shelf_id as shelfId,
+            s.name as shelfName,
+            a.alert_type as alertType,
+            a.status,
+            TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        FROM alert a
+        LEFT JOIN shelf s ON a.shelf_id = s.id
+        ORDER BY a.created_at DESC
+    </select>
+
+    <select id="findOpenAlertsWithShelf" resultType="com.inventory.dto.AlertWithShelfDto">
+        SELECT 
+            a.id,
+            a.shelf_id as shelfId,
+            s.name as shelfName,
+            a.alert_type as alertType,
+            a.status,
+            TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') as createdAt
+        FROM alert a
+        LEFT JOIN shelf s ON a.shelf_id = s.id
+        WHERE a.status = 'OPEN'
+        ORDER BY a.created_at DESC
+    </select>
+
+    <select id="countOpenAlerts" resultType="long">
+        SELECT COUNT(*) FROM alert
+        WHERE status = 'OPEN'
+    </select>
+
+    <delete id="delete">
+        DELETE FROM alert
+        WHERE id = #{id}
+    </delete>
+
+</mapper>
