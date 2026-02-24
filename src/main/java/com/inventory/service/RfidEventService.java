@@ -27,6 +27,7 @@ public class RfidEventService {
     private final ShelfDao shelfDao;
     private final ShelfService shelfService;
     private final RfidWsService rfidWsService;
+    private final AlertService alertService;
 
     public List<RfidEvent> getAllEvents() {
         return rfidEventDao.findAll();
@@ -88,6 +89,14 @@ public class RfidEventService {
         Product product = productDao.findByRfidTag(rfidTag);
         if (product == null) {
             throw new RuntimeException("Produit inconnu.");
+        }
+
+        // Verify that the product has been previously exited from stock
+        long hasExit = rfidEventDao.hasStockExit(product.getId());
+        if (hasExit == 0) {
+            // Create an alert instead of throwing an exception
+            alertService.createProductWithoutStockExitAlert(product.getId(), product.getName());
+            throw new RuntimeException("Le produit doit être sorti du stock avant d'entrer en magasin!");
         }
 
         RfidEvent event = new RfidEvent();

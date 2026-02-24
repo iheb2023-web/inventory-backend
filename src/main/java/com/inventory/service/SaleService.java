@@ -150,7 +150,7 @@ public class SaleService {
             Sale sale = new Sale();
             sale.setProductId(productId);
             sale.setQuantity(quantity);
-            sale.setTotalPrice(BigDecimal.ZERO);
+            sale.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() : BigDecimal.ZERO);
             saleDao.insert(sale);
         }
     }

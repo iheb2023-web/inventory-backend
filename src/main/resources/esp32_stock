@@ -6,8 +6,8 @@
 // ===================================================
 // 🔹 WIFI
 // ===================================================
-const char* ssid = "iPhone_adem";
-const char* password = "123456789*";
+const char* ssid = "iphone";
+const char* password = "12345678";
 
 // ===================================================
 // 🔹 BACKEND SPRING BOOT

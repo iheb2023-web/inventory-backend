@@ -13,8 +13,8 @@
     </select>
 
     <insert id="insert" parameterType="com.inventory.model.device.Alert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO alert (shelf_id, alert_type, status)
-        VALUES (#{shelfId}, #{alertType}, #{status})
+        INSERT INTO alert (shelf_id, product_id, product_name, alert_type, status)
+        VALUES (#{shelfId}, #{productId}, #{productName}, #{alertType}, #{status})
     </insert>
 
     <update id="resolveAlert">
@@ -22,6 +22,12 @@
         SET status = 'RESOLVED'
         WHERE id = #{alertId}
     </update>
+
+    <select id="findOpenAlertByProduct" resultType="com.inventory.model.device.Alert">
+        SELECT * FROM alert
+        WHERE product_id = #{productId} AND alert_type = 'PRODUCT_WITHOUT_STOCK_EXIT' AND status = 'OPEN'
+        LIMIT 1
+    </select>
 
     <select id="findAll" resultType="com.inventory.model.device.Alert">
         SELECT * FROM alert
@@ -39,6 +45,8 @@
             a.id,
             a.shelf_id as shelfId,
             s.name as shelfName,
+            a.product_id as productId,
+            a.product_name as productName,
             a.alert_type as alertType,
             a.status,
             TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') as createdAt
@@ -52,6 +60,8 @@
             a.id,
             a.shelf_id as shelfId,
             s.name as shelfName,
+            a.product_id as productId,
+            a.product_name as productName,
             a.alert_type as alertType,
             a.status,
             TO_CHAR(a.created_at, 'YYYY-MM-DD HH24:MI:SS') as createdAt

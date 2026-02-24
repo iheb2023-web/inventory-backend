@@ -11,6 +11,8 @@ import java.util.List;
 public interface AlertDao {
     Alert findOpenAlertByShelf(@Param("shelfId") Long shelfId);
 
+    Alert findOpenAlertByProduct(@Param("productId") Long productId);
+
     List<Alert> findAll();
 
     List<Alert> findOpenAlerts();

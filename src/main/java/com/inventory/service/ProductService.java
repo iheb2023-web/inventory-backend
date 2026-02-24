@@ -73,6 +73,7 @@ public class ProductService {
                     dto.setRfidTag(p.getRfidTag());
                     dto.setDescription(p.getDescription());
                     dto.setUnitWeight(p.getUnitWeight());
+                    dto.setUnitPrice(p.getUnitPrice() != null ? p.getUnitPrice() : java.math.BigDecimal.ZERO);
                     dto.setCreatedAt(p.getCreatedAt().toString());
                     dto.setStockQuantity(quantity);
                     return dto;
@@ -105,6 +106,7 @@ public class ProductService {
         dto.setRfidTag(product.getRfidTag());
         dto.setDescription(product.getDescription());
         dto.setUnitWeight(product.getUnitWeight());
+        dto.setUnitPrice(product.getUnitPrice() != null ? product.getUnitPrice() : java.math.BigDecimal.ZERO);
         dto.setCreatedAt(product.getCreatedAt().toString());
         dto.setStockQuantity(totalStoreQuantity);
         

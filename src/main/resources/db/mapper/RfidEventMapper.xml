@@ -65,4 +65,11 @@
         DELETE FROM rfid_event WHERE id = #{id}
     </delete>
 
+    <select id="hasStockExit" resultType="long">
+        SELECT COUNT(*) FROM rfid_event
+        WHERE product_id = #{productId} 
+        AND event_type = 'EXIT' 
+        AND location = 'STOCK'
+    </select>
+
 </mapper>

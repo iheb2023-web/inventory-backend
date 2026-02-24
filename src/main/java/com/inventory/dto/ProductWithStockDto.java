@@ -16,6 +16,7 @@ public class ProductWithStockDto {
     private String rfidTag;
     private String description;
     private BigDecimal unitWeight;
+    private BigDecimal unitPrice;
     private String createdAt;
     private Integer stockQuantity;
 }

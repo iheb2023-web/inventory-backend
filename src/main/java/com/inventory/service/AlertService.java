@@ -14,6 +14,9 @@ public class AlertService {
     @Autowired
     private AlertDao alertDao;
 
+    @Autowired
+    private RfidWsService rfidWsService;
+
     public List<Alert> getAllAlerts() {
         return alertDao.findAll();
     }
@@ -41,4 +44,24 @@ public class AlertService {
     public void deleteAlert(Long id) {
         alertDao.delete(id);
     }
+
+    public Alert createProductWithoutStockExitAlert(Long productId, String productName) {
+        // Check if alert already exists and is open
+        Alert existingAlert = alertDao.findOpenAlertByProduct(productId);
+        if (existingAlert == null) {
+            Alert alert = new Alert();
+            alert.setProductId(productId);
+            alert.setProductName(productName);
+            alert.setAlertType(Alert.AlertType.PRODUCT_WITHOUT_STOCK_EXIT);
+            alert.setStatus(Alert.AlertStatus.OPEN);
+            alertDao.insert(alert);
+            
+            // Notify frontend via WebSocket
+            rfidWsService.notifyAlert(alert);
+            
+            return alert;
+        }
+        return existingAlert;
+    }
 }
+

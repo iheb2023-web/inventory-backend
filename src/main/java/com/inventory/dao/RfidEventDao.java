@@ -16,5 +16,6 @@ public interface RfidEventDao {
 
     List<RfidEvent> findAll();
     void delete(Long id);
+    long hasStockExit(@Param("productId") Long productId);
 
 }

@@ -38,6 +38,7 @@ public class ProductController {
         product.setRfidTag(req.getRfidTag());
         product.setDescription(req.getDescription());
         product.setUnitWeight(req.getUnitWeight());
+        product.setUnitPrice(req.getUnitPrice());
 
         Product saved = productService.registerProduct(product, req.getEsp32Id());
         return ApiResponse.ok("PRODUCT_CREATED", saved);
@@ -59,6 +60,7 @@ public class ProductController {
         p.setRfidTag(req.getRfidTag());
         p.setDescription(req.getDescription());
         p.setUnitWeight(req.getUnitWeight());
+        p.setUnitPrice(req.getUnitPrice());
 
         Product updated = productService.updateProduct(p);
         return ApiResponse.ok("PRODUCT_UPDATED", updated);

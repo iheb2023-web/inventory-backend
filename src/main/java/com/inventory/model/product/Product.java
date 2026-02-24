@@ -13,5 +13,6 @@ public class Product {
     private String rfidTag;
     private String description;
     private BigDecimal unitWeight;
+    private BigDecimal unitPrice;
     private LocalDateTime createdAt;
 }

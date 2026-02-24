@@ -18,8 +18,8 @@
     </select>
 
     <insert id="insert" parameterType="com.inventory.model.product.Product" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO product (name, barcode, rfid_tag, description, unit_weight)
-        VALUES (#{name}, #{barcode}, #{rfidTag}, #{description}, #{unitWeight})
+        INSERT INTO product (name, barcode, rfid_tag, description, unit_weight, unit_price)
+        VALUES (#{name}, #{barcode}, #{rfidTag}, #{description}, #{unitWeight}, #{unitPrice})
     </insert>
     <select id="count" resultType="long">
         SELECT COUNT(*) FROM product
@@ -31,6 +31,7 @@
         <result column="rfid_tag" property="rfidTag"/>
         <result column="description" property="description"/>
         <result column="unit_weight" property="unitWeight"/>
+        <result column="unit_price" property="unitPrice"/>
         <result column="created_at" property="createdAt"/>
     </resultMap>
 
@@ -46,7 +47,8 @@
         barcode = #{barcode},
         rfid_tag = #{rfidTag},
         description = #{description},
-        unit_weight = #{unitWeight}
+        unit_weight = #{unitWeight},
+        unit_price = #{unitPrice}
         WHERE id = #{id}
     </update>
     <delete id="delete" parameterType="long">

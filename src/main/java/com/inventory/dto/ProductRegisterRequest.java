@@ -11,6 +11,7 @@ public class ProductRegisterRequest {
     private String rfidTag;       // UID coming from RFID
     private String description;
     private BigDecimal unitWeight;
+    private BigDecimal unitPrice;
     private String esp32Id;
 
 }
