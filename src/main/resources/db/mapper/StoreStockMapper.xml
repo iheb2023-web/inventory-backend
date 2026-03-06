@@ -5,6 +5,11 @@
 
 <mapper namespace="com.inventory.dao.StoreStockDao">
 
+    <select id="findById" resultType="com.inventory.model.product.StoreStock">
+        SELECT * FROM store_stock
+        WHERE id = #{id}
+    </select>
+
     <select id="findByProductAndShelf" resultType="com.inventory.model.product.StoreStock">
         SELECT * FROM store_stock
         WHERE product_id = #{productId} AND shelf_id = #{shelfId}
@@ -57,6 +62,10 @@
         JOIN shelf s ON ss.shelf_id = s.id
         ORDER BY ss.last_updated DESC
     </select>
+
+    <delete id="deleteById" parameterType="long">
+        DELETE FROM store_stock WHERE id = #{id}
+    </delete>
 
 </mapper>
 

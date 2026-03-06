@@ -8,6 +8,8 @@ import java.util.List;
 
 @Mapper
 public interface StoreStockDao {
+    StoreStock findById(@Param("id") Long id);
+
     StoreStock findByProductAndShelf(@Param("productId") Long productId, @Param("shelfId") Long shelfId);
 
     int insert(StoreStock storeStock);
@@ -20,5 +22,7 @@ public interface StoreStockDao {
     List<StoreStock> findAll();
 
     List<com.inventory.dto.StoreStockWithDetailsDto> findAllWithDetails();
+
+    int deleteById(@Param("id") Long id);
 
 }

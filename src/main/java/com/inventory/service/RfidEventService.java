@@ -133,11 +133,6 @@ public class RfidEventService {
         event.setQty(qty);
         rfidEventDao.insert(event);
 
-        int updated = stockDao.decrease(product.getId(), qty);
-        if (updated == 0) {
-            throw new RuntimeException("Stock insuffisant pour transfert vers magasin!");
-        }
-
         StoreStock ss = storeStockDao.findByProductAndShelf(product.getId(), shelfId);
         if (ss == null) {
             StoreStock newSS = new StoreStock();
