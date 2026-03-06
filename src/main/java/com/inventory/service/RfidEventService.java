@@ -11,11 +11,13 @@ import com.inventory.model.product.Stock;
 import com.inventory.model.product.StoreStock;
 import com.inventory.model.store.Shelf;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RfidEventService {
@@ -36,12 +38,19 @@ public class RfidEventService {
     @Transactional
     public void handleStockEntry(String rfidTag, String esp32Id, int qty) {
 
+        log.info("🔍 handleStockEntry called: rfidTag={}, esp32Id={}, qty={}", rfidTag, esp32Id, qty);
+        
         Product product = productDao.findByRfidTag(rfidTag);
         if (product == null) {
+            log.warn("❌ Unknown product detected with RFID tag: {}", rfidTag);
+            // Create an alert for unknown product
+            alertService.createProductWithoutStockAlert(null, "Tag RFID: " + rfidTag);
+            log.info("✅ Alert sent, now triggering NEW_PRODUCT notification");
             rfidWsService.notifyNewProduct(rfidTag, "STOCK");
             return;
         }
 
+        log.info("✅ Product found: {}", product.getId());
         RfidEvent event = new RfidEvent();
         event.setProductId(product.getId());
         event.setEventType(RfidEvent.EventType.ENTRY);
@@ -66,6 +75,7 @@ public class RfidEventService {
 
         Product product = productDao.findByRfidTag(rfidTag);
         if (product == null) {
+            alertService.createProductWithoutStockAlert(null, "Tag RFID: " + rfidTag);
             throw new RuntimeException("Produit inconnu.");
         }
 
@@ -88,6 +98,7 @@ public class RfidEventService {
 
         Product product = productDao.findByRfidTag(rfidTag);
         if (product == null) {
+            alertService.createProductWithoutStockAlert(null, "Tag RFID: " + rfidTag);
             throw new RuntimeException("Produit inconnu.");
         }
 
@@ -136,6 +147,7 @@ public class RfidEventService {
 
         Product product = productDao.findByRfidTag(rfidTag);
         if (product == null) {
+            alertService.createProductWithoutStockAlert(null, "Tag RFID: " + rfidTag);
             throw new RuntimeException("Produit inconnu.");
         }
 

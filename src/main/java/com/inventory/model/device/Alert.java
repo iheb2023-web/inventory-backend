@@ -8,7 +8,8 @@ public class Alert {
 
     public enum AlertType {
         LOW_WEIGHT,
-        PRODUCT_WITHOUT_STOCK_EXIT
+        PRODUCT_WITHOUT_STOCK_EXIT,
+        UNKNOWN_PRODUCT
     }
 
     public enum AlertStatus {

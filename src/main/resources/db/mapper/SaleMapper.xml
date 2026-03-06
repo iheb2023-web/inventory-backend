@@ -10,4 +10,17 @@
         VALUES (#{productId}, #{quantity}, #{totalPrice})
     </insert>
 
+    <select id="findRecentSales" resultType="com.inventory.model.product.Sale">
+        SELECT id, product_id, quantity, total_price, sold_at
+        FROM sale
+        ORDER BY sold_at DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="findAll" resultType="com.inventory.model.product.Sale">
+        SELECT id, product_id, quantity, total_price, sold_at
+        FROM sale
+        ORDER BY sold_at DESC
+    </select>
+
 </mapper>

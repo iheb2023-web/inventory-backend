@@ -3,6 +3,7 @@ package com.inventory.service;
 import com.inventory.dao.ProductDao;
 import com.inventory.dao.SaleDao;
 import com.inventory.dao.StoreStockDao;
+import com.inventory.dto.SaleTransactionDto;
 import com.inventory.model.product.Product;
 import com.inventory.model.product.Sale;
 import com.inventory.model.product.StoreStock;
@@ -11,7 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -153,5 +157,72 @@ public class SaleService {
             sale.setTotalPrice(item.getTotalPrice() != null ? item.getTotalPrice() : BigDecimal.ZERO);
             saleDao.insert(sale);
         }
+    }
+
+    public List<SaleTransactionDto> getRecentSalesGrouped(int limit) {
+        // Fetch recent sales
+        List<Sale> sales = saleDao.findRecentSales(limit * 3); // Fetch more to account for grouping
+        
+        // Group sales by minute (same minute = same transaction)
+        Map<LocalDateTime, List<Sale>> groupedByMinute = new TreeMap<>(Collections.reverseOrder());
+        
+        for (Sale sale : sales) {
+            LocalDateTime minuteKey = sale.getSoldAt().truncatedTo(ChronoUnit.MINUTES);
+            groupedByMinute.computeIfAbsent(minuteKey, k -> new ArrayList<>()).add(sale);
+        }
+        
+        // Convert to SaleTransactionDto
+        List<SaleTransactionDto> transactions = new ArrayList<>();
+        int count = 0;
+        
+        for (Map.Entry<LocalDateTime, List<Sale>> entry : groupedByMinute.entrySet()) {
+            if (count >= limit) break;
+            
+            LocalDateTime transactionDate = entry.getKey();
+            List<Sale> salesInTransaction = entry.getValue();
+            
+            SaleTransactionDto transaction = new SaleTransactionDto();
+            transaction.setTransactionDate(transactionDate);
+            
+            // Build sale items with product details
+            List<SaleTransactionDto.SaleItemDto> items = new ArrayList<>();
+            int totalQuantity = 0;
+            BigDecimal totalPrice = BigDecimal.ZERO;
+            
+            for (Sale sale : salesInTransaction) {
+                Product product = productDao.findById(sale.getProductId());
+                
+                SaleTransactionDto.SaleItemDto itemDto = new SaleTransactionDto.SaleItemDto();
+                itemDto.setSaleId(sale.getId());
+                itemDto.setProductId(sale.getProductId());
+                itemDto.setProductName(product != null ? product.getName() : "Produit inconnu");
+                itemDto.setQuantity(sale.getQuantity());
+                itemDto.setTotalPrice(sale.getTotalPrice());
+                
+                if (product != null && sale.getQuantity() > 0) {
+                    BigDecimal unitPrice = sale.getTotalPrice().divide(
+                            new BigDecimal(sale.getQuantity()), 
+                            2, 
+                            BigDecimal.ROUND_HALF_UP
+                    );
+                    itemDto.setUnitPrice(unitPrice);
+                } else {
+                    itemDto.setUnitPrice(BigDecimal.ZERO);
+                }
+                
+                items.add(itemDto);
+                totalQuantity += sale.getQuantity();
+                totalPrice = totalPrice.add(sale.getTotalPrice());
+            }
+            
+            transaction.setItems(items);
+            transaction.setTotalQuantity(totalQuantity);
+            transaction.setTotalPrice(totalPrice);
+            
+            transactions.add(transaction);
+            count++;
+        }
+        
+        return transactions;
     }
 }
