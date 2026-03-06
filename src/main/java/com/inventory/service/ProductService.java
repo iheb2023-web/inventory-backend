@@ -4,6 +4,7 @@ import com.inventory.dao.ProductDao;
 import com.inventory.dao.RfidEventDao;
 import com.inventory.dao.StockDao;
 import com.inventory.dao.StoreStockDao;
+import com.inventory.dao.SaleDao;
 import com.inventory.model.device.RfidEvent;
 import com.inventory.model.product.Product;
 import com.inventory.model.product.Stock;
@@ -21,6 +22,7 @@ public class ProductService {
     private final StockDao stockDao;
     private final RfidEventDao rfidEventDao;
     private final StoreStockDao storeStockDao;
+    private final SaleDao saleDao;
 
     public Product findByRfidTag(String uid) {
         return productDao.findByRfidTag(uid);
@@ -37,6 +39,7 @@ public class ProductService {
         event.setEventType(RfidEvent.EventType.ENTRY);
         event.setLocation(RfidEvent.EventLocation.STOCK);
         event.setEsp32Id(esp32Id);
+        event.setQty(1); // Set default quantity
         rfidEventDao.insert(event);
 
         Stock stock = new Stock();
@@ -56,6 +59,24 @@ public class ProductService {
 
     @Transactional
     public void deleteProduct(Long id) {
+        // Check if product exists
+        Product product = productDao.findById(id);
+        if (product == null) {
+            throw new RuntimeException("Produit introuvable avec l'ID: " + id);
+        }
+        
+        // Check if product has sales history
+        long salesCount = saleDao.countByProductId(id);
+        if (salesCount > 0) {
+            throw new RuntimeException(
+                String.format("Impossible de supprimer le produit '%s'. " +
+                    "Il a %d vente(s) enregistrée(s) dans l'historique. " +
+                    "Vous ne pouvez pas supprimer un produit qui a déjà été vendu.", 
+                    product.getName(), salesCount)
+            );
+        }
+        
+        // Delete product (cascades to stock, store_stock, rfid_event)
         productDao.delete(id);
     }
 

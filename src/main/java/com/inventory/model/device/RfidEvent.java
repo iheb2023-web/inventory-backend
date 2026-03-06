@@ -19,5 +19,6 @@ public class RfidEvent {
     private EventType eventType;
     private EventLocation location;
     private String esp32Id;
+    private Integer qty; // Track quantity for each RFID event
     private LocalDateTime createdAt;
 }

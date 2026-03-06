@@ -23,4 +23,8 @@
         ORDER BY sold_at DESC
     </select>
 
+    <select id="countByProductId" resultType="long">
+        SELECT COUNT(*) FROM sale WHERE product_id = #{productId}
+    </select>
+
 </mapper>

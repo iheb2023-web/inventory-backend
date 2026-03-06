@@ -17,5 +17,9 @@ public interface RfidEventDao {
     List<RfidEvent> findAll();
     void delete(Long id);
     long hasStockExit(@Param("productId") Long productId);
+    
+    // New methods for validating store entry quantity against stock exits
+    int sumStockExitQty(@Param("productId") Long productId);
+    int sumStoreEntryQty(@Param("productId") Long productId);
 
 }

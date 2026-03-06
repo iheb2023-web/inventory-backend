@@ -13,4 +13,7 @@ public interface SaleDao {
     List<Sale> findRecentSales(@Param("limit") int limit);
     
     List<Sale> findAll();
+    
+    // Check if a product has sales history
+    long countByProductId(@Param("productId") Long productId);
 }

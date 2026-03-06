@@ -12,6 +12,7 @@
         <result column="event_type" property="eventType" jdbcType="VARCHAR" />
         <result column="location" property="location" jdbcType="VARCHAR" />
         <result column="esp32_id" property="esp32Id" jdbcType="VARCHAR"/>
+        <result column="qty" property="qty" jdbcType="INTEGER"/>
         <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
         
     </resultMap>
@@ -23,12 +24,13 @@
         <result column="event_type" property="eventType" jdbcType="VARCHAR" />
         <result column="location" property="location" jdbcType="VARCHAR" />
         <result column="esp32_id" property="esp32Id" jdbcType="VARCHAR"/>
+        <result column="qty" property="qty" jdbcType="INTEGER"/>
         <result column="created_at" property="createdAt" jdbcType="TIMESTAMP"/>
     </resultMap>
 
     <insert id="insert" parameterType="com.inventory.model.device.RfidEvent" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO rfid_event (product_id, event_type, location, esp32_id)
-        VALUES (#{productId}, #{eventType}, #{location}, #{esp32Id})
+        INSERT INTO rfid_event (product_id, event_type, location, esp32_id, qty)
+        VALUES (#{productId}, #{eventType}, #{location}, #{esp32Id}, #{qty})
     </insert>
 
     <select id="findRecent" resultMap="BaseResultMap">
@@ -45,6 +47,7 @@
             re.event_type,
             re.location,
             re.esp32_id,
+            re.qty,
             re.created_at
         FROM rfid_event re
         JOIN product p ON re.product_id = p.id
@@ -70,6 +73,22 @@
         WHERE product_id = #{productId} 
         AND event_type = 'EXIT' 
         AND location = 'STOCK'
+    </select>
+
+    <!-- Sum quantities for all stock exits of a product -->
+    <select id="sumStockExitQty" resultType="int">
+        SELECT COALESCE(SUM(qty), 0) FROM rfid_event
+        WHERE product_id = #{productId}
+        AND event_type = 'EXIT'
+        AND location = 'STOCK'
+    </select>
+
+    <!-- Sum quantities for all store entries of a product -->
+    <select id="sumStoreEntryQty" resultType="int">
+        SELECT COALESCE(SUM(qty), 0) FROM rfid_event
+        WHERE product_id = #{productId}
+        AND event_type = 'ENTRY'
+        AND location = 'STORE'
     </select>
 
 </mapper>

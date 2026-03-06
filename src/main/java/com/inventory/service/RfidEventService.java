@@ -56,6 +56,7 @@ public class RfidEventService {
         event.setEventType(RfidEvent.EventType.ENTRY);
         event.setLocation(RfidEvent.EventLocation.STOCK);
         event.setEsp32Id(esp32Id);
+        event.setQty(qty);
         rfidEventDao.insert(event);
 
         Stock stock = stockDao.findByProductId(product.getId());
@@ -84,6 +85,7 @@ public class RfidEventService {
         event.setEventType(RfidEvent.EventType.EXIT);
         event.setLocation(RfidEvent.EventLocation.STOCK);
         event.setEsp32Id(esp32Id);
+        event.setQty(qty);
         rfidEventDao.insert(event);
 
         int updated = stockDao.decrease(product.getId(), qty);
@@ -110,11 +112,25 @@ public class RfidEventService {
             throw new RuntimeException("Le produit doit être sorti du stock avant d'entrer en magasin!");
         }
 
+        // NEW VALIDATION: Check that total store entries don't exceed total stock exits
+        int totalStockExits = rfidEventDao.sumStockExitQty(product.getId());
+        int totalStoreEntries = rfidEventDao.sumStoreEntryQty(product.getId());
+        int potentialTotal = totalStoreEntries + qty;
+        
+        if (potentialTotal > totalStockExits) {
+            throw new RuntimeException(
+                String.format("Quantité invalide! Sorties du stock: %d, Entrées magasin (actuelles + nouvelle): %d. " +
+                    "La quantité à entrer ne peut pas dépasser les sorties du stock!",
+                    totalStockExits, potentialTotal)
+            );
+        }
+
         RfidEvent event = new RfidEvent();
         event.setProductId(product.getId());
         event.setEventType(RfidEvent.EventType.ENTRY);
         event.setLocation(RfidEvent.EventLocation.STORE);
         event.setEsp32Id(esp32Id);
+        event.setQty(qty);
         rfidEventDao.insert(event);
 
         int updated = stockDao.decrease(product.getId(), qty);
@@ -156,6 +172,7 @@ public class RfidEventService {
         event.setEventType(RfidEvent.EventType.EXIT);
         event.setLocation(RfidEvent.EventLocation.STORE);
         event.setEsp32Id(esp32Id);
+        event.setQty(qty);
         rfidEventDao.insert(event);
 
         StoreStock ss = storeStockDao.findByProductAndShelf(product.getId(), shelfId);

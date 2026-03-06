@@ -14,5 +14,6 @@ public class RfidEventWithProductDto {
     private String eventType;
     private String location;
     private String esp32Id;
+    private Integer qty;
     private String createdAt;
 }
